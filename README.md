@@ -1,7 +1,5 @@
 # Next App Mantine Tailwind Template
 
-This is a minimal template for a Next.js project with Mantine and Tailwind CSS.
-
 ## Development
 
 Run the development server:

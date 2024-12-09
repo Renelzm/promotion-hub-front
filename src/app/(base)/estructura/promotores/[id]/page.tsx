@@ -2,35 +2,43 @@
 
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { RespuestaPromotores } from "@/app/interfaces/promotores";
+import {
+  Estructura,
+  Promotor,
+  RespuestaPromotores,
+} from "@/app/interfaces/promotores";
 import axios from "axios";
 import { configStore } from "@/store/config-store";
-import { useAuthStore, useUsuarioStore } from "@/store/user-store";
+import { useAuthStore } from "@/store/user-store";
 import { Loader, Alert, Container, Divider, Title, Text } from "@mantine/core";
-import { RateUsers } from "../components/amigos/rate-users";
+import { RatePromotores } from "../../components/promotores/rate-promotores";
+import { TableResponsivePromotor } from "../../components/promotores/table-responsive-promotor";
 
 export default function PromotoresPage() {
   const [promotores, setpromotores] = useState<RespuestaPromotores>();
-  const [nombrePromotor, setpromotor] = useState("Promotor");
-
+  const { id } = useParams();
   const [loading, setLoading] = useState(true);
+  const [promovidosPromotores, setPP] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const baseUrl = configStore((state) => state.baseApiUrl);
   const user = useAuthStore((state) => state.user);
   const token = user?.token;
+
   useEffect(() => {
     const fetchPromovidos = async () => {
       setLoading(true);
       setError(null);
-
       try {
-        const response = await axios.get(`${baseUrl}/promocion/promotores/`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const response = await axios.get(
+          `${baseUrl}/promocion/promotores/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        });
-        console.log(response.data);
+        );
         setpromotores(response.data || {});
+        countPromovidos(response.data.estructura[0].estructura.promotores);
         // setpromotor(response.data.nombre || "promotor.");
       } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
@@ -47,6 +55,16 @@ export default function PromotoresPage() {
 
     fetchPromovidos();
   }, []);
+
+  const countPromovidos = (promotores: Promotor[]) => {
+    if (!promotores) return 0;
+    let count = 0;
+    promotores.forEach((promotor) => {
+      count += promotor.promovidos.length;
+    });
+    setPP(count);
+    return count;
+  };
 
   if (loading) {
     return (
@@ -73,13 +91,20 @@ export default function PromotoresPage() {
         <Text className="mb-6 text-center">De: {user?.nombre}</Text>
       </Title>
 
-      <RateUsers totalAmigos={promotores?.promotores} votaron={0} />
+      <RatePromotores
+        totalPromotores={promotores?.promotores || 0}
+        totalAmigos={promotores?.promovidos || 0}
+        votaron={0}
+        promovidos={promovidosPromotores}
+      />
       <Divider
         my="xs"
-        label={<Title order={1}>Detalle Amigos</Title>}
+        label={<Title order={1}>Detalle Promotores</Title>}
         labelPosition="center"
       />
-      {/* <Tableresponsive amigos={amigos} /> */}
+      <TableResponsivePromotor
+        jefeZona={promotores?.estructura[0].estructura!}
+      />
     </div>
   );
 }

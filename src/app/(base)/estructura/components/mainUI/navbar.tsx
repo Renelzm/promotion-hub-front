@@ -11,6 +11,7 @@ import { TiUserAdd } from "react-icons/ti";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { IoHome } from "react-icons/io5";
+import { PiTreeStructureDuotone } from "react-icons/pi";
 
 export const Navbar = () => {
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -74,6 +75,17 @@ export const Navbar = () => {
                       >
                         <TiUserAdd size={20} color="teal" />
                         <span className="ml-2">nuevo promotor</span>
+                      </Link>
+                    </List.Item>
+                  ) : null}
+                  {rol === "jefedezona" || rol === "admin" ? (
+                    <List.Item className="flex items-center">
+                      <Link
+                        href={`/estructura/promotores/${user?.id_usuario}`}
+                        className="flex items-center text-sm uppercase font-bold rounded-md m-3 hover:bg-slate-800 text-white"
+                      >
+                        <PiTreeStructureDuotone size={20} color="teal" />
+                        <span className="ml-2">Mis promotores</span>
                       </Link>
                     </List.Item>
                   ) : null}
